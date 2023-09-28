@@ -6,26 +6,27 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>TP 5 PROMISES</title>
+    <title>TP 4 PROMISES</title>
 </head>
 
 <body>
-    <h1>Listado of the Employees </h1>
-    <div id="employeeList"></div>
+    <p>Paragraph with the data: </p>
 
+    <div id="miContenedor"></div>
+
+    <ul>
+    </ul>
     <script>
-
         function company_API(url, method) {
             return new Promise((resolve, reject) => {
                 let request = new XMLHttpRequest();
-                request.overrideMimeType("application/json");//Esto es para que interprete google sepa que los datos son json
                 request.open(method, url);
                 request.responseType = 'json';
                 request.onload = function () {
                     if (request.status == 200) {
                         resolve(request.response);
                     } else {
-                        reject(Error('THERE WAS AN ERROR LOADING DATA'));
+                        reject(Error('THERE WAS AN ERROR LOADING DATA ASJFDSAJFGJRG'));
                     }
                 }
                 request.onerror = function () {
@@ -35,48 +36,164 @@
             });
         }
 
-        // company_API('EMPLEADOS.json', 'GET')
-        //     .then(employees => {
+        /*function company_API_Post(url, method, params) {
+            return new Promise((resolve, reject) => {
+                let request = new XMLHttpRequest();
+                request.open(method, url);
+                request.responseType = 'json';
+                request.setRequestHeader("Content-Type", "application/json");
+                request.onload = function () {
+                    if (request.status == 200) {
+                        resolve(request.response);
+                    } else {
+                        reject(Error('THERE WAS AN ERROR LOADING DATA ASJFDSAJFGJRG'));
+                    }
+                }
+                request.onerror = function () {
+                    reject(Error('THERE WAS AN INTERNET ERROR (I THINK)'));
+                }
+                request.send();
+            });
+        }*/
 
-        //         console.log(employees);
 
-        //         // Agregar un nuevo empleado al array
-        //         let newEmployee = { "id": 4, "name": "Pepe", "company_id": 101 };
-        //         employees.push(newEmployee);
+        /* company_API('https://utn-lubnan-api-1.herokuapp.com/api/Employee', 'GET')
+          .then((employees) => {
+              console.log(employees);
 
-        //         console.log("Empleado:", newEmployee, "agregado");
+              let paragraph = document.querySelector('p');
+              paragraph.textContent = 'EMPLOYEE NAMES: ';
+              employees.forEach(employee => { paragraph.textContent += employee.firstName + ", "; });
+          })
+          .catch((reason) => {
+              console.log(Error(reason));
+          }); */
 
-        //         // Opcional: Imprimir el array completo
-        //         console.log("Empleados actualizados:", employees);
-        //     })
-        //     .catch((reason) => {
-        //         console.error(Error(reason));
-        //     });
+        /*  company_API('https://utn-lubnan-api-1.herokuapp.com/api/Company', 'GET')
+             .then((company) => {
+                 console.log(company);
+ 
+                 let paragraph = document.querySelector('p');
+                 paragraph.textContent = 'COMPANIES: ';
+                 company.forEach(company => {
+                  paragraph.textContent += company.name + ", ";
+                 });
+             })
+             .catch((reason2) => {
+                 console.log(Error(reason2));
+             });*/
 
-        //     company_API('COMPANIES.json', 'GET')
-        //     .then(company => {
 
-        //         console.log(company);
+        company_API('https://utn-lubnan-api-1.herokuapp.com/api/Employee', 'GET')
+            .then((employees) => {
+                return company_API('https://utn-lubnan-api-1.herokuapp.com/api/Company', 'GET')
+                    .then((companies) => {
+                        const companyMap = new Map(companies.map(company => [company.CompanyId, company]));
+                        //const companyMap = new Map(companies.CompanyId, company); ASI NO FUNCIONA PERO NO ENTIENDO POR QUE NO
+                        const employeesWithCompanies = employees.map(employee => ({
+                            EmployeeName: `${employee.firstName} ${employee.lastName}`,
+                            CompanyName: companyMap.get(employee.CompanyId)?.name || 'Desconocida'
+                        }));
 
-        //     })
-        //     .catch((reason) => {
-        //         console.error(Error(reason));
-        //     });
-        
-        var employee = company_API('EMPLEADOS.json', 'GET');
-        var companies = company_API('COMPANIES.json', 'GET');
-
-        var both = Promise.all([employee, companies])
-            .then(data => {
-                console.log(data);
+                        return employeesWithCompanies;
+                    });
             })
-            .catch(reason => {
-                console.log(reason);
+            .then((employeesWithCompanies) => {
+                orderByName(employeesWithCompanies);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
             });
 
-    
-    </script>
+        /*//Este sirve para combinar ambas promises o andan las dos o no anda ninguna
+        // Obtener datos de empleados
+        const employeesPromise = company_API('https://utn-lubnan-api-1.herokuapp.com/api/Employee', 'GET');
 
+        // Obtener datos de compañías
+        const companiesPromise = company_API('https://utn-lubnan-api-1.herokuapp.com/api/Company', 'GET');
+
+        Promise.all([employeesPromise, companiesPromise])
+            .then(([employees, companies]) => {
+                const companyMap = new Map(companies.map(company => [company.CompanyId, company]));
+
+                const employeesWithCompanies = employees.map(employee => ({
+                    EmployeeName: `${employee.firstName} ${employee.lastName}`,
+                    CompanyName: companyMap.get(employee.CompanyId)?.name || 'Desconocida'
+                }));
+
+                orderByName(employeesWithCompanies); // Ordenar por nombre después de combinar los datos
+
+                // Aquí puedes hacer lo que necesites con la lista ordenada, como mostrarla en una tabla
+                console.log(employeesWithCompanies);
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+            });
+*/
+
+        /*       company_API('https://utn-lubnan-api-1.herokuapp.com/api/Employee/523', 'DELETE')
+                  .then((employees) => {
+                          console.log('se elimno :)');
+                  })
+                  .catch((reason) => {
+                      console.log(Error(reason));
+                  }); */
+
+
+        /* let employee = {
+             employeeId: 0,
+             companyId: 234,
+             firstName: "Lucas",
+             lastName: "Hola",
+             email: "asd@gmail.com"
+         }
+ 
+         company_API_Post('https://utn-lubnan-api-1.herokuapp.com/api/Employee', 'POST', employee)
+             .then((response) => {
+                 console.log("Godetos");
+             })
+             .catch((error) => {
+                 console.error("Error:", error);
+                 console.log(error);
+             });*/
+
+        //ordena por nombre
+        function orderByName(EmployeeList) {
+            EmployeeList.sort((a, b) => {
+                return a.EmployeeName.localeCompare(b.EmployeeName);
+            });
+
+            let list = document.querySelector('ul');
+
+            // Borra los elementos de lista actuales
+            list.innerHTML = '';
+
+            // Recorre la lista de empleados con compañías ordenada y crea elementos de lista (li) para cada uno
+            EmployeeList.forEach(employee => {
+                // Crea un nuevo elemento de lista (li)
+                let listItem = document.createElement('li');
+
+                // Establece el contenido del elemento de lista con el nombre del empleado y la compañía
+                listItem.textContent = `${employee.EmployeeName} works in ${employee.CompanyName}`;
+
+                // Agrega el elemento de lista a la lista (ul)
+                list.appendChild(listItem);
+            });
+        }
+
+
+        //cuenta los empleado y las companias
+        function countEmployees(employees) {
+            return employees.length;
+        }
+
+        function countCompanies(companies) {
+            return companies.length;
+        }
+
+
+
+    </script>
 </body>
 
 </html>
